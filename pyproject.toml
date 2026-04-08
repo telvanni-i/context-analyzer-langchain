@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "context-analyzer-langchain"
+version = "0.1.0"
+description = "Simple LangGraph example that decomposes a request into executable steps with tags and embeddings"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "langchain>=0.3.0",
+  "langchain-openai>=0.3.0",
+  "langgraph>=0.2.0",
+  "python-dotenv>=1.0.0",
+  "pydantic>=2.7.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
