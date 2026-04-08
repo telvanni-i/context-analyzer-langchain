@@ -1,0 +1,1 @@
+Build a workflow that reads this request and JIRA context, then asks an LLM to decompose the task into ordered implementation steps including tags and embeddings.

@@ -1,0 +1,7 @@
+Project: Context Analyzer
+Ticket: JIRA-123
+Goal: Transform raw requests into implementation-ready plans with searchable metadata.
+Constraints:
+- Keep steps small and testable.
+- Tag steps for routing to specialist agents.
+- Include embeddings for semantic retrieval in future pipelines.
