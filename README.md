@@ -35,7 +35,7 @@ Benefits:
 │   └── JIRA.txt
 ├── input/
 │   └── user_request.txt
-├── src/context_analyzer/
+├── context_analyzer/
 │   ├── agents/
 │   │   ├── base.py
 │   │   └── decomposition_agent.py
@@ -112,8 +112,10 @@ python -m context_analyzer.main \
 
 ## Notes
 
-- The runtime reads credentials from `.env.local`.
+- The runtime reads credentials and logging settings from `.env.local`.
 - Model defaults:
   - Chat model: `gpt-4.1-mini`
   - Embedding model: `text-embedding-3-small`
+- Optional SOCKS5 proxy can be configured with `SOCKS5_URL` (used by both chat and embeddings clients).
+- Every LLM interaction is appended to `OPENAI_LOGS_PATH` as JSONL.
 - You can override model names via env vars (`OPENAI_MODEL`, `OPENAI_EMBEDDING_MODEL`).
