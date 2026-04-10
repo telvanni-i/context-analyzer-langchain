@@ -34,7 +34,4 @@ def build_workflow() -> CompiledStateGraph[WorkflowState, None, WorkflowState, W
     graph.add_edge("read_jira_context", "decompose")
     graph.add_edge("decompose", END)
 
-    return cast(
-        CompiledStateGraph[WorkflowState, None, WorkflowState, WorkflowState],
-        graph.compile(),
-    )
+    return graph.compile()
