@@ -11,6 +11,7 @@ from pydantic import SecretStr
 
 from context_analyzer.agents.base import BaseAgent
 from context_analyzer.config.settings import AppSettings
+from context_analyzer.graph.state import WorkflowState
 from context_analyzer.models.schemas import DecompositionResult, StepItem
 from context_analyzer.utils.openai_logging import OpenAILogCallbackHandler
 
@@ -58,7 +59,7 @@ class DecompositionAgent(BaseAgent):
             ]
         )
 
-    def run(self, state: dict) -> dict:
+    def run(self, state: WorkflowState) -> WorkflowState:
         """Generate step decomposition and embedding vectors.
 
         Expected state keys:

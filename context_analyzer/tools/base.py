@@ -9,5 +9,5 @@ class BaseTool(ABC):
     """Base class for simple reusable tool objects."""
 
     @abstractmethod
-    def run(self, *args, **kwargs):
+    def run(self, *args: object, **kwargs: object) -> object:
         """Execute tool logic and return a value."""

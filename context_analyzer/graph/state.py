@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import Any, TypedDict
 
 
 class WorkflowState(TypedDict, total=False):
@@ -14,4 +14,4 @@ class WorkflowState(TypedDict, total=False):
     request_path: str
     task_request: str
     jira_context: str
-    decomposition: dict
+    decomposition: dict[str, Any]
