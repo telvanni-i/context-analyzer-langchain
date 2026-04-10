@@ -16,7 +16,7 @@ class FileReaderTool(BaseTool):
     - it always returns stripped text
     """
 
-    def run(self, path: str) -> str:
+    def run(self, *args: object, **kwargs: object) -> str:
         """Read and return the file content.
 
         Args:
@@ -26,5 +26,9 @@ class FileReaderTool(BaseTool):
             Text content without leading/trailing whitespace.
         """
 
-        file_path = Path(path).resolve()
+        raw_path = kwargs.get("path", args[0] if args else None)
+        if not isinstance(raw_path, str):
+            raise TypeError("path must be provided as a string argument")
+
+        file_path = Path(raw_path).resolve()
         return file_path.read_text(encoding="utf-8").strip()

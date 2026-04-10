@@ -7,24 +7,25 @@ from context_analyzer.agents.decomposition_agent import (
     MockDecompositionAgent,
 )
 from context_analyzer.config.settings import load_settings
+from context_analyzer.graph.state import WorkflowState
 from context_analyzer.tools.file_reader import FileReaderTool
 
 
-def read_request_node(state: dict) -> dict:
+def read_request_node(state: WorkflowState) -> WorkflowState:
     """Read user request from the path provided in graph input state."""
 
     reader = FileReaderTool()
     return {"task_request": reader.run(state["request_path"])}
 
 
-def read_jira_context_node(_: dict) -> dict:
+def read_jira_context_node(_: WorkflowState) -> WorkflowState:
     """Read project context from the fixed JIRA context file."""
 
     reader = FileReaderTool()
     return {"jira_context": reader.run("context/JIRA.txt")}
 
 
-def decompose_task_node(state: dict) -> dict:
+def decompose_task_node(state: WorkflowState) -> WorkflowState:
     """Use LLM + embeddings to transform text into step-by-step algorithm output."""
 
     settings = load_settings()

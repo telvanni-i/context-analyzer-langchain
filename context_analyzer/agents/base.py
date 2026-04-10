@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any
+
+from context_analyzer.graph.state import WorkflowState
 
 
 class BaseAgent(ABC):
@@ -14,7 +15,7 @@ class BaseAgent(ABC):
     """
 
     @abstractmethod
-    def run(self, state: dict[str, Any]) -> dict[str, Any]:
+    def run(self, state: WorkflowState) -> WorkflowState:
         """Execute agent logic and return state updates.
 
         Args:
