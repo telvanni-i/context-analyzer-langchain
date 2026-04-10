@@ -17,6 +17,30 @@ dependencies = [
   "pydantic>=2.7.0",
 ]
 
+[project.optional-dependencies]
+dev = [
+  "flake8>=7.0.0",
+  "mypy>=1.10.0",
+]
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["context_analyzer*"]
+
+[tool.flake8]
+max-line-length = 100
+exclude = [
+  ".git",
+  "__pycache__",
+  ".venv",
+]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["context_analyzer"]
+pretty = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+strict_equality = true
