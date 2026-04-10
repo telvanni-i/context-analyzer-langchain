@@ -18,6 +18,7 @@ class AppSettings:
         embedding_model: Embedding model used for step vector generation.
         socks5_url: Optional SOCKS5 proxy URL used for OpenAI HTTP calls.
         openai_logs_path: Local file path where every LLM interaction is appended.
+        use_mock_openai: Toggle for mock agent implementation without network calls.
     """
 
     openai_api_key: str
@@ -25,6 +26,7 @@ class AppSettings:
     embedding_model: str = "text-embedding-3-small"
     socks5_url: str | None = None
     openai_logs_path: str = ""
+    use_mock_openai: bool = False
 
 
 def load_settings() -> AppSettings:
@@ -49,10 +51,13 @@ def load_settings() -> AppSettings:
 
     socks5_url = os.getenv("SOCKS5_URL", "").strip() or None
 
+    use_mock_openai = os.getenv("USE_MOCK_OPENAI", "").strip().lower() in {"1", "true", "yes", "on"}
+
     return AppSettings(
         openai_api_key=api_key,
         openai_model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini").strip(),
         embedding_model=os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small").strip(),
         socks5_url=socks5_url,
         openai_logs_path=logs_path,
+        use_mock_openai=use_mock_openai,
     )

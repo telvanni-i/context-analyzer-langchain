@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+
 import httpx
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -9,7 +11,7 @@ from pydantic import SecretStr
 
 from context_analyzer.agents.base import BaseAgent
 from context_analyzer.config.settings import AppSettings
-from context_analyzer.models.schemas import DecompositionResult
+from context_analyzer.models.schemas import DecompositionResult, StepItem
 from context_analyzer.utils.openai_logging import OpenAILogCallbackHandler
 
 
@@ -64,17 +66,75 @@ class DecompositionAgent(BaseAgent):
             jira_context: Background text read from context/JIRA.txt.
         """
 
+        result = self._generate_decomposition(
+            task_request=state["task_request"],
+            jira_context=state["jira_context"],
+        )
+
+        for step in result.steps:
+            step.embedding = self._embed_step(step.step_description)
+
+        return {"decomposition": result.model_dump()}
+
+    def _generate_decomposition(
+        self,
+        *,
+        task_request: str,
+        jira_context: str,
+    ) -> DecompositionResult:
+        """Perform the OpenAI structured-output call for decomposition."""
+
         chain = self._prompt | self._llm.with_structured_output(DecompositionResult)
         raw_result = chain.invoke(
             {
-                "task_request": state["task_request"],
-                "jira_context": state["jira_context"],
+                "task_request": task_request,
+                "jira_context": jira_context,
             }
         )
-        result = DecompositionResult.model_validate(raw_result)
+        return DecompositionResult.model_validate(raw_result)
 
-        for step in result.steps:
-            vector = self._embeddings.embed_query(step.step_description)
-            step.embedding = vector
+    def _embed_step(self, step_description: str) -> list[float]:
+        """Perform the OpenAI embedding call for a step description."""
 
-        return {"decomposition": result.model_dump()}
+        return self._embeddings.embed_query(step_description)
+
+
+class MockDecompositionAgent(DecompositionAgent):
+    """Drop-in replacement that avoids real OpenAI calls for local testing."""
+
+    def _generate_decomposition(
+        self,
+        *,
+        task_request: str,
+        jira_context: str,
+    ) -> DecompositionResult:
+        """Return deterministic mock decomposition steps."""
+
+        return DecompositionResult(
+            steps=[
+                StepItem(
+                    step_description=(
+                        "Summarize the request and context into explicit acceptance criteria."
+                    ),
+                    tags=["analysis", "requirements"],
+                ),
+                StepItem(
+                    step_description=(
+                        "Design implementation tasks with dependencies and clear ordering."
+                    ),
+                    tags=["planning", "architecture"],
+                ),
+                StepItem(
+                    step_description=(
+                        "Validate outcomes with tests and produce a concise execution report."
+                    ),
+                    tags=["testing", "reporting"],
+                ),
+            ]
+        )
+
+    def _embed_step(self, step_description: str) -> list[float]:
+        """Return a deterministic pseudo-embedding derived from step text."""
+
+        digest = hashlib.sha256(step_description.encode("utf-8")).digest()
+        return [round(byte / 255.0, 6) for byte in digest[:8]]
