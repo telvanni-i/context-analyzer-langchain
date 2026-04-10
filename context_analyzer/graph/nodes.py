@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from context_analyzer.agents.decomposition_agent import DecompositionAgent
+from context_analyzer.agents.decomposition_agent import (
+    DecompositionAgent,
+    MockDecompositionAgent,
+)
 from context_analyzer.config.settings import load_settings
 from context_analyzer.tools.file_reader import FileReaderTool
 
@@ -24,5 +27,7 @@ def read_jira_context_node(_: dict) -> dict:
 def decompose_task_node(state: dict) -> dict:
     """Use LLM + embeddings to transform text into step-by-step algorithm output."""
 
-    agent = DecompositionAgent(settings=load_settings())
+    settings = load_settings()
+    agent_cls = MockDecompositionAgent if settings.use_mock_openai else DecompositionAgent
+    agent = agent_cls(settings=settings)
     return agent.run(state)
