@@ -5,6 +5,7 @@ from __future__ import annotations
 import httpx
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from pydantic import SecretStr
 
 from context_analyzer.agents.base import BaseAgent
 from context_analyzer.config.settings import AppSettings
@@ -24,17 +25,18 @@ class DecompositionAgent(BaseAgent):
             else httpx.Client()
         )
         callback = OpenAILogCallbackHandler(settings.openai_logs_path)
+        api_key = SecretStr(settings.openai_api_key)
 
         self._llm = ChatOpenAI(
             model=settings.openai_model,
-            api_key=settings.openai_api_key,
+            api_key=api_key,
             temperature=0,
             http_client=http_client,
             callbacks=[callback],
         )
         self._embeddings = OpenAIEmbeddings(
             model=settings.embedding_model,
-            api_key=settings.openai_api_key,
+            api_key=api_key,
             http_client=http_client,
         )
 
@@ -63,12 +65,13 @@ class DecompositionAgent(BaseAgent):
         """
 
         chain = self._prompt | self._llm.with_structured_output(DecompositionResult)
-        result: DecompositionResult = chain.invoke(
+        raw_result = chain.invoke(
             {
                 "task_request": state["task_request"],
                 "jira_context": state["jira_context"],
             }
         )
+        result = DecompositionResult.model_validate(raw_result)
 
         for step in result.steps:
             vector = self._embeddings.embed_query(step.step_description)
