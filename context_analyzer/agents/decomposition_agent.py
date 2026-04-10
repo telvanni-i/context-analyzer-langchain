@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import httpx
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 from context_analyzer.agents.base import BaseAgent
 from context_analyzer.config.settings import AppSettings
 from context_analyzer.models.schemas import DecompositionResult
+from context_analyzer.utils.openai_logging import OpenAILogCallbackHandler
 
 
 class DecompositionAgent(BaseAgent):
@@ -16,14 +18,24 @@ class DecompositionAgent(BaseAgent):
     def __init__(self, settings: AppSettings) -> None:
         """Initialize model clients for chat and embeddings."""
 
+        http_client = (
+            httpx.Client(proxy=settings.socks5_url)
+            if settings.socks5_url
+            else httpx.Client()
+        )
+        callback = OpenAILogCallbackHandler(settings.openai_logs_path)
+
         self._llm = ChatOpenAI(
             model=settings.openai_model,
             api_key=settings.openai_api_key,
             temperature=0,
+            http_client=http_client,
+            callbacks=[callback],
         )
         self._embeddings = OpenAIEmbeddings(
             model=settings.embedding_model,
             api_key=settings.openai_api_key,
+            http_client=http_client,
         )
 
         self._prompt = ChatPromptTemplate.from_messages(

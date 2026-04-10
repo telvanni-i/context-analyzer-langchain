@@ -16,11 +16,15 @@ class AppSettings:
         openai_api_key: Secret key for OpenAI API calls.
         openai_model: Model name used for task decomposition.
         embedding_model: Embedding model used for step vector generation.
+        socks5_url: Optional SOCKS5 proxy URL used for OpenAI HTTP calls.
+        openai_logs_path: Local file path where every LLM interaction is appended.
     """
 
     openai_api_key: str
     openai_model: str = "gpt-4.1-mini"
     embedding_model: str = "text-embedding-3-small"
+    socks5_url: str | None = None
+    openai_logs_path: str = ""
 
 
 def load_settings() -> AppSettings:
@@ -30,7 +34,7 @@ def load_settings() -> AppSettings:
         Parsed immutable settings object.
 
     Raises:
-        ValueError: If required secrets are missing.
+        ValueError: If required secrets or config are missing.
     """
 
     load_dotenv(".env.local")
@@ -39,8 +43,16 @@ def load_settings() -> AppSettings:
     if not api_key:
         raise ValueError("Missing OPENAI_API_KEY in .env.local or environment.")
 
+    logs_path = os.getenv("OPENAI_LOGS_PATH", "").strip()
+    if not logs_path:
+        raise ValueError("Missing OPENAI_LOGS_PATH in .env.local or environment.")
+
+    socks5_url = os.getenv("SOCKS5_URL", "").strip() or None
+
     return AppSettings(
         openai_api_key=api_key,
         openai_model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini").strip(),
         embedding_model=os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small").strip(),
+        socks5_url=socks5_url,
+        openai_logs_path=logs_path,
     )
