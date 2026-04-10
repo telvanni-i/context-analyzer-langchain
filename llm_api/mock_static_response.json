@@ -1,0 +1,12 @@
+{
+  "response": {
+    "role": "assistant",
+    "content": "This is a static mock response."
+  },
+  "stats": {
+    "input_tokens": 0,
+    "input_cached_tokens": 0,
+    "output_tokens": 0,
+    "price_usd": "0"
+  }
+}
